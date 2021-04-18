@@ -44,6 +44,29 @@ Algumas pequenas considerações antes de listar as entities:
 - Enums funcionam diferente no Java, precisarei entender um pouco melhor. Possivelmente usarei para status da conta e tipo de transação (conceito inicial).
 - String resolve para o __barcode__? (Acho que sim, mas fiquei com uma pulguinha)
 
+#### Account
+
+| Nome | Campo |
+| --- | --- |
+| Id | Long |
+| Name | String |
+| Description | String |
+| Status | Enum (ACTIVE, CANCELED) |
+| Balance | BigDecimal |
+
+#### Transaction
+
+| Nome | Campo |
+| --- | --- |
+| Id | Long |
+| AccountId | Long |
+| Timestamp | java.time.Instant |
+| Amount | BigDecimal |
+| Type | Enum (DEPOSIT, PAYMENT, TRANSFER) |
+
+- Falta persistir na transaction os dados do boleto ou conta (destino ou origem)
+- Qual o melhor nome pra boleto em inglês? kkkk (bill?)
+
 ## Docker
 
 <mais pra frente>
