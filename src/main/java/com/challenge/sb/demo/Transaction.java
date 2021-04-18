@@ -1,9 +1,6 @@
 package com.challenge.sb.demo;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.ManyToOne;
+import javax.persistence.*;
 import java.math.BigDecimal;
 import java.time.Instant;
 
@@ -12,8 +9,12 @@ public class Transaction {
     enum Type { DEPOSIT, PAYMENT, TRANSFER }
 
     private @Id @GeneratedValue Long id;
+
     private Instant timestamp;
+
     private BigDecimal amount;
+
+    @Enumerated(EnumType.STRING)
     private Type type;
 
     @ManyToOne

@@ -1,9 +1,6 @@
 package com.challenge.sb.demo;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
+import javax.persistence.*;
 import java.math.BigDecimal;
 import java.util.List;
 
@@ -12,9 +9,14 @@ public class Account {
     enum Status { ACTIVE, CANCELED }
 
     private @Id @GeneratedValue Long id;
+
     private String name;
+
     private String description;
+
+    @Enumerated(EnumType.STRING)
     private Status status;
+
     private BigDecimal balance;
 
     @OneToMany( targetEntity = Transaction.class )
