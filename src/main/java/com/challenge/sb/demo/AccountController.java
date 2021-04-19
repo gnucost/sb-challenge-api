@@ -111,8 +111,12 @@ public class AccountController {
     }
 
     @GetMapping("/accounts/{id}/balance")
-    BigDecimal checkBalance(@PathVariable Long id){
-        return accountRepository.checkBalance(id);
+    ResponseEntity<String> checkBalance(@PathVariable Long id){
+        if (!accountRepository.existsById(id))
+            throw new AccountNotFoundException(id);
+
+        BigDecimal balance = accountRepository.checkBalance(id);
+        return new ResponseEntity<>("Account current balance: " + balance, HttpStatus.OK);
     }
 
     @GetMapping("/accounts/{id}/transactions")
