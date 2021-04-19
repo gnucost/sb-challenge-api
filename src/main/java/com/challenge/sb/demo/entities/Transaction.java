@@ -1,10 +1,12 @@
 package com.challenge.sb.demo.entities;
 
+import com.challenge.sb.demo.Payment;
 import com.challenge.sb.demo.entities.Account;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.OptionalLong;
 
 @Entity
 public class Transaction {
@@ -22,14 +24,22 @@ public class Transaction {
     @ManyToOne
     private Account account;
 
+    // if type is a transfer, this field store the other account involved. Otherwise is null.
+    // if amount is negative than this field store the destination account, otherwise the origin account/
+    private Long transferAccountId;
+
+    private Payment payment;
+
     public Transaction() {
     }
 
-    public Transaction(BigDecimal amount, Type type, Account account) {
+    public Transaction(BigDecimal amount, Type type, Account account, Long transferAccountId, Payment payment){
         this.amount = amount;
         this.type = type;
         this.account = account;
         this.timestamp = Instant.now();
+        this.transferAccountId = transferAccountId;
+        this.payment = payment;
     }
 
     public Long getId() {
@@ -70,5 +80,21 @@ public class Transaction {
 
     public void setAccount(Account account) {
         this.account = account;
+    }
+
+    public Long getTransferAccountId() {
+        return transferAccountId;
+    }
+
+    public void setTransferAccountId(Long transferAccountId) {
+        this.transferAccountId = transferAccountId;
+    }
+
+    public Payment getPayment() {
+        return payment;
+    }
+
+    public void setPayment(Payment payment) {
+        this.payment = payment;
     }
 }

@@ -30,11 +30,11 @@ public class AccountController {
 
     private final AccountModelAssembler accountModelAssembler;
 
-    private Account makeTransaction(Long accountId, BigDecimal amount, Transaction.Type type){
+    private Account makeTransaction(Long accountId, BigDecimal amount, Transaction.Type type, Long transferAccountId, Payment payment){
         return accountRepository.findById(accountId)
                 .map(account -> {
                     account.setBalance(account.getBalance().add(amount));
-                    transactionRepository.save(new Transaction(amount, type, account));
+                    transactionRepository.save(new Transaction(amount, type, account, transferAccountId, payment));
                     return accountRepository.save(account);
                 }).orElseThrow(() -> new AccountNotFoundException(accountId));
     }
@@ -119,17 +119,38 @@ public class AccountController {
 
     @PostMapping("/accounts/{id}/deposit")
     void makeDeposit(@RequestBody Deposit deposit, @PathVariable Long id){
-        this.makeTransaction(id, deposit.getAmount(), Transaction.Type.DEPOSIT);
+        this.makeTransaction(
+                id,
+                deposit.getAmount(),
+                Transaction.Type.DEPOSIT,
+                null,
+                null);
     }
 
     @PostMapping("/accounts/{id}/payment")
     void makePayment(@RequestBody Payment payment, @PathVariable Long id){
-        this.makeTransaction(id, payment.getAmount().negate(), Transaction.Type.PAYMENT);
+        this.makeTransaction(
+                id,
+                payment.getAmount().negate(),
+                Transaction.Type.PAYMENT,
+                null,
+                payment);
     }
 
     @PostMapping("/accounts/transfer")
     void makeTransfer(@RequestBody Transfer transfer){
-        this.makeTransaction(transfer.getAccountOrigin(), transfer.getAmount().negate(), Transaction.Type.TRANSFER);
-        this.makeTransaction(transfer.getAccountDestination(), transfer.getAmount(), Transaction.Type.TRANSFER);
+        this.makeTransaction(
+                transfer.getAccountOriginId(),
+                transfer.getAmount().negate(),
+                Transaction.Type.TRANSFER,
+                transfer.getAccountDestinationId(),
+                null);
+
+        this.makeTransaction(
+                transfer.getAccountDestinationId(),
+                transfer.getAmount(),
+                Transaction.Type.TRANSFER,
+                transfer.getAccountOriginId(),
+                null);
     }
 }

@@ -4,16 +4,16 @@ import java.math.BigDecimal;
 
 public class Transfer {
     private BigDecimal amount;
-    private Long accountOrigin;
-    private Long accountDestination;
+    private Long accountOriginId;
+    private Long accountDestinationId;
 
     public Transfer() {
     }
 
-    public Transfer(BigDecimal amount, Long accountOrigin, Long accountDestination) {
+    public Transfer(BigDecimal amount, Long accountOriginId, Long accountDestinationId) {
         this.amount = amount;
-        this.accountOrigin = accountOrigin;
-        this.accountDestination = accountDestination;
+        this.accountOriginId = accountOriginId;
+        this.accountDestinationId = accountDestinationId;
     }
 
     public Transfer(BigDecimal amount) {
@@ -28,19 +28,19 @@ public class Transfer {
         this.amount = amount;
     }
 
-    public Long getAccountOrigin() {
-        return accountOrigin;
+    public Long getAccountOriginId() {
+        return accountOriginId;
     }
 
-    public void setAccountOrigin(Long accountOrigin) {
-        this.accountOrigin = accountOrigin;
+    public void setAccountOriginId(Long accountOriginId) {
+        this.accountOriginId = accountOriginId;
     }
 
-    public Long getAccountDestination() {
-        return accountDestination;
+    public Long getAccountDestinationId() {
+        return accountDestinationId;
     }
 
-    public void setAccountDestination(Long accountDestination) {
-        this.accountDestination = accountDestination;
+    public void setAccountDestinationId(Long accountDestinationId) {
+        this.accountDestinationId = accountDestinationId;
     }
 }
