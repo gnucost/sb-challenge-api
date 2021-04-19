@@ -1,5 +1,6 @@
-package com.challenge.sb.demo;
+package com.challenge.sb.demo.repositories;
 
+import com.challenge.sb.demo.entities.Account;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 

@@ -1,5 +1,7 @@
 package com.challenge.sb.demo;
 
+import com.challenge.sb.demo.entities.Account;
+import com.challenge.sb.demo.repositories.AccountRepository;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;

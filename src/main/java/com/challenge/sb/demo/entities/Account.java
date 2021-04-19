@@ -1,4 +1,4 @@
-package com.challenge.sb.demo;
+package com.challenge.sb.demo.entities;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
@@ -6,7 +6,7 @@ import java.util.List;
 
 @Entity
 public class Account {
-    enum Status { ACTIVE, CANCELED }
+    public enum Status { ACTIVE, CANCELED }
 
     private @Id @GeneratedValue Long id;
 

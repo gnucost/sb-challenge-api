@@ -1,4 +1,6 @@
-package com.challenge.sb.demo;
+package com.challenge.sb.demo.entities;
+
+import com.challenge.sb.demo.entities.Account;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
@@ -6,7 +8,7 @@ import java.time.Instant;
 
 @Entity
 public class Transaction {
-    enum Type { DEPOSIT, PAYMENT, TRANSFER }
+    public enum Type { DEPOSIT, PAYMENT, TRANSFER }
 
     private @Id @GeneratedValue Long id;
 

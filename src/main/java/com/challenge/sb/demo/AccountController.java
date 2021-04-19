@@ -1,5 +1,9 @@
 package com.challenge.sb.demo;
 
+import com.challenge.sb.demo.entities.Account;
+import com.challenge.sb.demo.entities.Transaction;
+import com.challenge.sb.demo.repositories.AccountRepository;
+import com.challenge.sb.demo.repositories.TransactionRepository;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
