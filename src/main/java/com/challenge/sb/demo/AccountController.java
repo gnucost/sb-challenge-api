@@ -5,6 +5,7 @@ import com.challenge.sb.demo.entities.helpers.Deposit;
 import com.challenge.sb.demo.entities.Payment;
 import com.challenge.sb.demo.entities.helpers.Transfer;
 import com.challenge.sb.demo.repositories.AccountRepository;
+import com.challenge.sb.demo.repositories.PaymentRepository;
 import com.challenge.sb.demo.repositories.TransactionRepository;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.data.web.PageableDefault;
@@ -30,6 +31,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 public class AccountController {
     private final AccountRepository accountRepository;
     private final TransactionRepository transactionRepository;
+    private final PaymentRepository paymentRepository;
 
     private final AccountAssembler accountAssembler;
     private final TransactionAssembler transactionAssembler;
@@ -46,10 +48,12 @@ public class AccountController {
     // Dependency Injection
     AccountController(AccountRepository accountRepository,
                       TransactionRepository transactionRepository,
+                      PaymentRepository paymentRepository,
                       AccountAssembler accountAssembler,
                       TransactionAssembler transactionAssembler){
         this.accountRepository = accountRepository;
         this.transactionRepository = transactionRepository;
+        this.paymentRepository = paymentRepository;
         this.accountAssembler = accountAssembler;
         this.transactionAssembler = transactionAssembler;
     }
@@ -130,13 +134,13 @@ public class AccountController {
 
     @Operation(summary = "List transactions by account id")
     @GetMapping("/accounts/{id}/transactions")
-    public CollectionModel<EntityModel<Transaction>> financialStatement(@PathVariable Long id, @PageableDefault(page = 0, size = 10) Pageable pageRequest){
+    public CollectionModel<EntityModel<Transaction>> financialStatement(@PathVariable Long id){
         List<EntityModel<Transaction>> transactions = transactionRepository.findByAccountId(id).stream()
                 .map(transactionAssembler::toModel)
                 .collect(Collectors.toList());
 
         return CollectionModel.of(transactions,
-                linkTo(methodOn(AccountController.class).financialStatement(id, pageRequest)).withSelfRel());
+                linkTo(methodOn(AccountController.class).financialStatement(id)).withSelfRel());
     }
 
     @Operation(summary = "Make a deposit (Add credit to account)")
@@ -155,12 +159,14 @@ public class AccountController {
     @Operation(summary = "Make a payment")
     @PostMapping("/accounts/{id}/payment")
     ResponseEntity<String> makePayment(@RequestBody Payment payment, @PathVariable Long id){
+        Payment newPayment = this.paymentRepository.save(payment);
+
         this.makeTransaction(
                 id,
                 payment.getAmount().negate(),
                 Transaction.Type.PAYMENT,
                 null,
-                payment);
+                newPayment);
 
         return new ResponseEntity<>("Payment successful", HttpStatus.OK);
     }
