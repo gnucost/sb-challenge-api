@@ -1,4 +1,4 @@
-package com.challenge.sb.demo;
+package com.challenge.sb.demo.entities.helpers;
 
 import java.math.BigDecimal;
 

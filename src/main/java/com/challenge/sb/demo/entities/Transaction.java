@@ -1,12 +1,10 @@
 package com.challenge.sb.demo.entities;
 
-import com.challenge.sb.demo.Payment;
-import com.challenge.sb.demo.entities.Account;
+import com.challenge.sb.demo.entities.helpers.Payment;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.util.OptionalLong;
 
 @Entity
 public class Transaction {
