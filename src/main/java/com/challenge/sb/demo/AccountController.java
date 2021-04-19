@@ -1,14 +1,12 @@
 package com.challenge.sb.demo;
 
-import com.challenge.sb.demo.entities.Account;
-import com.challenge.sb.demo.entities.AccountModelAssembler;
-import com.challenge.sb.demo.entities.AccountNotFoundException;
-import com.challenge.sb.demo.entities.Transaction;
+import com.challenge.sb.demo.entities.*;
 import com.challenge.sb.demo.entities.helpers.Deposit;
 import com.challenge.sb.demo.entities.helpers.Payment;
 import com.challenge.sb.demo.entities.helpers.Transfer;
 import com.challenge.sb.demo.repositories.AccountRepository;
 import com.challenge.sb.demo.repositories.TransactionRepository;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.IanaLinkRelations;
@@ -19,6 +17,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.awt.print.Pageable;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -31,7 +30,8 @@ public class AccountController {
     private final AccountRepository accountRepository;
     private final TransactionRepository transactionRepository;
 
-    private final AccountModelAssembler accountModelAssembler;
+    private final AccountAssembler accountAssembler;
+    private final TransactionAssembler transactionAssembler;
 
     private Account makeTransaction(Long accountId, BigDecimal amount, Transaction.Type type, Long transferAccountId, Payment payment){
         return accountRepository.findById(accountId)
@@ -45,16 +45,18 @@ public class AccountController {
     // Dependency Injection
     AccountController(AccountRepository accountRepository,
                       TransactionRepository transactionRepository,
-                      AccountModelAssembler accountModelAssembler){
+                      AccountAssembler accountAssembler,
+                      TransactionAssembler transactionAssembler){
         this.accountRepository = accountRepository;
         this.transactionRepository = transactionRepository;
-        this.accountModelAssembler = accountModelAssembler;
+        this.accountAssembler = accountAssembler;
+        this.transactionAssembler = transactionAssembler;
     }
 
     @PostMapping("/accounts")
     ResponseEntity<?> newAccount(@RequestBody Account account){
         Account newAccount = new Account(account.getName(), account.getDescription());
-        EntityModel<Account> entityModel = accountModelAssembler.toModel(accountRepository.save(newAccount));
+        EntityModel<Account> entityModel = accountAssembler.toModel(accountRepository.save(newAccount));
         return ResponseEntity
                 .created(entityModel.getRequiredLink(IanaLinkRelations.SELF).toUri())
                 .body(entityModel);
@@ -70,7 +72,7 @@ public class AccountController {
                     return accountRepository.save(account);
                 }).orElseThrow(() -> new AccountNotFoundException(id));
 
-        EntityModel<Account> entityModel = accountModelAssembler.toModel(updatedAccount);
+        EntityModel<Account> entityModel = accountAssembler.toModel(updatedAccount);
         return ResponseEntity
                 .created(entityModel.getRequiredLink(IanaLinkRelations.SELF).toUri())
                 .body(entityModel);
@@ -79,7 +81,7 @@ public class AccountController {
     @GetMapping("/accounts")
     public CollectionModel<EntityModel<Account>> listAccounts(){
         List<EntityModel<Account>> accounts = accountRepository.findAll().stream()
-                .map(accountModelAssembler::toModel)
+                .map(accountAssembler::toModel)
                 .collect(Collectors.toList());
 
         return CollectionModel.of(accounts, linkTo(methodOn(AccountController.class).listAccounts()).withSelfRel());
@@ -89,7 +91,7 @@ public class AccountController {
     public EntityModel<Account> findAccount(@PathVariable Long id){
         Account account = accountRepository.findById(id).orElseThrow(() -> new AccountNotFoundException(id));
 
-        return accountModelAssembler.toModel(account);
+        return accountAssembler.toModel(account);
     }
 
     @DeleteMapping("/accounts/{id")
@@ -99,7 +101,7 @@ public class AccountController {
 
         if (account.getStatus() == Account.Status.ACTIVE) {
             account.setStatus(Account.Status.CANCELED);
-            return ResponseEntity.ok(accountModelAssembler.toModel(accountRepository.save(account)));
+            return ResponseEntity.ok(accountAssembler.toModel(accountRepository.save(account)));
         }
 
         return ResponseEntity
@@ -120,8 +122,13 @@ public class AccountController {
     }
 
     @GetMapping("/accounts/{id}/transactions")
-    List<Transaction> financialStatement(@PathVariable Long id){
-        return transactionRepository.findByAccountId(id);
+    public CollectionModel<EntityModel<Transaction>> financialStatement(@PathVariable Long id, @PageableDefault(page = 0, size = 10) Pageable pageRequest){
+        List<EntityModel<Transaction>> transactions = transactionRepository.findByAccountId(id, pageRequest).stream()
+                .map(transactionAssembler::toModel)
+                .collect(Collectors.toList());
+
+        return CollectionModel.of(transactions,
+                linkTo(methodOn(AccountController.class).financialStatement(id, pageRequest)).withSelfRel());
     }
 
     @PostMapping("/accounts/{id}/deposit")
