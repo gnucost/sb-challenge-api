@@ -1,6 +1,7 @@
 package com.challenge.sb.demo;
 
 import com.challenge.sb.demo.entities.Account;
+import com.challenge.sb.demo.entities.AccountNotFoundException;
 import com.challenge.sb.demo.entities.Transaction;
 import com.challenge.sb.demo.repositories.AccountRepository;
 import com.challenge.sb.demo.repositories.TransactionRepository;
@@ -15,13 +16,13 @@ public class AccountController {
     private final AccountRepository accountRepository;
     private final TransactionRepository transactionRepository;
 
-    private Optional<Account> makeTransaction(Long accountId, BigDecimal amount, Transaction.Type type){
+    private Account makeTransaction(Long accountId, BigDecimal amount, Transaction.Type type){
         return accountRepository.findById(accountId)
                 .map(account -> {
                     account.setBalance(account.getBalance().add(amount));
                     transactionRepository.save(new Transaction(amount, type, account));
                     return accountRepository.save(account);
-                });
+                }).orElseThrow(() -> new AccountNotFoundException(accountId));
     }
 
     // Dependency Injection
@@ -36,29 +37,29 @@ public class AccountController {
         return accountRepository.save(newAccount);
     }
 
-    @PutMapping("/accounts")
-    Optional<Account> updateAccount(@RequestBody Account newAccount){
-        return accountRepository.findById(newAccount.getId())
+    @PutMapping("/accounts/{id}")
+    Account updateAccount(@PathVariable Long id, @RequestBody Account newAccount){
+        return accountRepository.findById(id)
                 .map(account -> {
                     account.setName(newAccount.getName());
                     account.setDescription(newAccount.getDescription());
                     account.setStatus(newAccount.getStatus());
                     return accountRepository.save(account);
-                });
+                }).orElseThrow(() -> new AccountNotFoundException(id));
     }
 
     @GetMapping("/accounts/{id}")
-    Optional<Account> findAccount(@PathVariable Long id){
-        return accountRepository.findById(id);
+    Account findAccount(@PathVariable Long id){
+        return accountRepository.findById(id).orElseThrow(() -> new AccountNotFoundException(id));
     }
 
     @DeleteMapping("/accounts/{id}")
-    Optional<Account> deleteAccount(@PathVariable Long id){
+    Account deleteAccount(@PathVariable Long id){
         return accountRepository.findById(id)
                 .map(account -> {
                     account.setStatus(Account.Status.CANCELED);
                     return accountRepository.save(account);
-                });
+                }).orElseThrow(() -> new AccountNotFoundException(id));
     }
 
     @GetMapping("/accounts/{id}/balance")
