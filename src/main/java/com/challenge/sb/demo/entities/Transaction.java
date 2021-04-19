@@ -1,7 +1,5 @@
 package com.challenge.sb.demo.entities;
 
-import com.challenge.sb.demo.entities.helpers.Payment;
-
 import javax.persistence.*;
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -26,6 +24,7 @@ public class Transaction {
     // if amount is negative than this field store the destination account, otherwise the origin account/
     private Long transferAccountId;
 
+    @OneToOne
     private Payment payment;
 
     public Transaction() {

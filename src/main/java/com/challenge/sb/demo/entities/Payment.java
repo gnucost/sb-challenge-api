@@ -1,9 +1,16 @@
-package com.challenge.sb.demo.entities.helpers;
+package com.challenge.sb.demo.entities;
 
+import org.springframework.context.annotation.Primary;
+
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
 import java.math.BigDecimal;
 import java.time.Instant;
 
+@Entity
 public class Payment {
+    @Id @GeneratedValue private Long id;
     private String barcode;
     private Instant expirationDate;
     private BigDecimal amount;
@@ -15,6 +22,14 @@ public class Payment {
         this.barcode = barcode;
         this.expirationDate = expirationDate;
         this.amount = amount;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getBarcode() {

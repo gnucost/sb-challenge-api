@@ -2,7 +2,7 @@ package com.challenge.sb.demo;
 
 import com.challenge.sb.demo.entities.*;
 import com.challenge.sb.demo.entities.helpers.Deposit;
-import com.challenge.sb.demo.entities.helpers.Payment;
+import com.challenge.sb.demo.entities.Payment;
 import com.challenge.sb.demo.entities.helpers.Transfer;
 import com.challenge.sb.demo.repositories.AccountRepository;
 import com.challenge.sb.demo.repositories.TransactionRepository;
@@ -131,7 +131,7 @@ public class AccountController {
     @Operation(summary = "List transactions by account id")
     @GetMapping("/accounts/{id}/transactions")
     public CollectionModel<EntityModel<Transaction>> financialStatement(@PathVariable Long id, @PageableDefault(page = 0, size = 10) Pageable pageRequest){
-        List<EntityModel<Transaction>> transactions = transactionRepository.findByAccountId(id, pageRequest).stream()
+        List<EntityModel<Transaction>> transactions = transactionRepository.findByAccountId(id).stream()
                 .map(transactionAssembler::toModel)
                 .collect(Collectors.toList());
 
