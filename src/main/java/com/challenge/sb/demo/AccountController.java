@@ -11,6 +11,15 @@ public class AccountController {
     private final AccountRepository accountRepository;
     private final TransactionRepository transactionRepository;
 
+    private Optional<Account> makeTransaction(Long accountId, BigDecimal amount, Transaction.Type type){
+        return accountRepository.findById(accountId)
+                .map(account -> {
+                    account.setBalance(account.getBalance().add(amount));
+                    transactionRepository.save(new Transaction(amount, type, account));
+                    return accountRepository.save(account);
+                });
+    }
+
     // Dependency Injection
     AccountController(AccountRepository accountRepository, TransactionRepository transactionRepository){
         this.accountRepository = accountRepository;
@@ -60,38 +69,17 @@ public class AccountController {
 
     @PostMapping("/accounts/{id}/deposit")
     void makeDeposit(@RequestBody Deposit deposit, @PathVariable Long id){
-        accountRepository.findById(id)
-                .map(account -> {
-                    account.setBalance(account.getBalance().add(deposit.getAmount()));
-                    accountRepository.save(account);
-                    return transactionRepository.save(new Transaction(deposit.getAmount(), Transaction.Type.DEPOSIT, account));
-                });
+        this.makeTransaction(id, deposit.getAmount(), Transaction.Type.DEPOSIT);
     }
 
     @PostMapping("/accounts/{id}/payment")
     void makePayment(@RequestBody Payment payment, @PathVariable Long id){
-        accountRepository.findById(id)
-                .map(account -> {
-                    account.setBalance(account.getBalance().subtract(payment.getAmount()));
-                    accountRepository.save(account);
-                    return transactionRepository.save(new Transaction(payment.getAmount(), Transaction.Type.PAYMENT, account));
-                });
+        this.makeTransaction(id, payment.getAmount().negate(), Transaction.Type.PAYMENT);
     }
 
     @PostMapping("/accounts/transfer")
     void makeTransfer(@RequestBody Transfer transfer){
-        accountRepository.findById(transfer.getAccountOrigin())
-                .map(account -> {
-                    account.setBalance(account.getBalance().subtract(transfer.getAmount()));
-                    accountRepository.save(account);
-                    return transactionRepository.save(new Transaction(transfer.getAmount().negate(), Transaction.Type.TRANSFER, account));
-                });
-
-        accountRepository.findById(transfer.getAccountDestination())
-                .map(account -> {
-                    account.setBalance(account.getBalance().add(transfer.getAmount()));
-                    accountRepository.save(account);
-                    return transactionRepository.save(new Transaction(transfer.getAmount(), Transaction.Type.TRANSFER, account));
-                });
+        this.makeTransaction(transfer.getAccountOrigin(), transfer.getAmount().negate(), Transaction.Type.TRANSFER);
+        this.makeTransaction(transfer.getAccountDestination(), transfer.getAmount(), Transaction.Type.TRANSFER);
     }
 }
