@@ -132,27 +132,31 @@ public class AccountController {
     }
 
     @PostMapping("/accounts/{id}/deposit")
-    void makeDeposit(@RequestBody Deposit deposit, @PathVariable Long id){
+    ResponseEntity<String> makeDeposit(@RequestBody Deposit deposit, @PathVariable Long id){
         this.makeTransaction(
                 id,
                 deposit.getAmount(),
                 Transaction.Type.DEPOSIT,
                 null,
                 null);
+
+        return new ResponseEntity<>("Deposit successful", HttpStatus.OK);
     }
 
     @PostMapping("/accounts/{id}/payment")
-    void makePayment(@RequestBody Payment payment, @PathVariable Long id){
+    ResponseEntity<String> makePayment(@RequestBody Payment payment, @PathVariable Long id){
         this.makeTransaction(
                 id,
                 payment.getAmount().negate(),
                 Transaction.Type.PAYMENT,
                 null,
                 payment);
+
+        return new ResponseEntity<>("Payment successful", HttpStatus.OK);
     }
 
     @PostMapping("/accounts/transfer")
-    void makeTransfer(@RequestBody Transfer transfer){
+    ResponseEntity<String> makeTransfer(@RequestBody Transfer transfer){
         this.makeTransaction(
                 transfer.getAccountOriginId(),
                 transfer.getAmount().negate(),
@@ -166,5 +170,7 @@ public class AccountController {
                 Transaction.Type.TRANSFER,
                 transfer.getAccountOriginId(),
                 null);
+
+        return new ResponseEntity<>("Transfer successful", HttpStatus.OK);
     }
 }
