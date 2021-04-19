@@ -6,6 +6,7 @@ import com.challenge.sb.demo.entities.helpers.Payment;
 import com.challenge.sb.demo.entities.helpers.Transfer;
 import com.challenge.sb.demo.repositories.AccountRepository;
 import com.challenge.sb.demo.repositories.TransactionRepository;
+import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
@@ -53,6 +54,7 @@ public class AccountController {
         this.transactionAssembler = transactionAssembler;
     }
 
+    @Operation(summary = "Add new account")
     @PostMapping("/accounts")
     ResponseEntity<?> newAccount(@RequestBody Account account){
         Account newAccount = new Account(account.getName(), account.getDescription());
@@ -62,6 +64,7 @@ public class AccountController {
                 .body(entityModel);
     }
 
+    @Operation(summary = "Update an existing account")
     @PutMapping("/accounts/{id}")
     ResponseEntity<?> updateAccount(@PathVariable Long id, @RequestBody Account newAccount){
         Account updatedAccount = accountRepository.findById(id)
@@ -78,6 +81,7 @@ public class AccountController {
                 .body(entityModel);
     }
 
+    @Operation(summary = "List all accounts")
     @GetMapping("/accounts")
     public CollectionModel<EntityModel<Account>> listAccounts(){
         List<EntityModel<Account>> accounts = accountRepository.findAll().stream()
@@ -87,6 +91,7 @@ public class AccountController {
         return CollectionModel.of(accounts, linkTo(methodOn(AccountController.class).listAccounts()).withSelfRel());
     }
 
+    @Operation(summary = "Find an account by id")
     @GetMapping("/accounts/{id}")
     public EntityModel<Account> findAccount(@PathVariable Long id){
         Account account = accountRepository.findById(id).orElseThrow(() -> new AccountNotFoundException(id));
@@ -94,7 +99,8 @@ public class AccountController {
         return accountAssembler.toModel(account);
     }
 
-    @DeleteMapping("/accounts/{id")
+    @Operation(summary = "Change account status to CANCELED")
+    @DeleteMapping("/accounts/{id}")
     ResponseEntity<?> deleteAccount(@PathVariable Long id){
         Account account = accountRepository.findById(id)
                 .orElseThrow(() -> new AccountNotFoundException(id));
@@ -112,6 +118,7 @@ public class AccountController {
                         .withDetail("Can't cancel account already canceled"));
     }
 
+    @Operation(summary = "Return current balance for account")
     @GetMapping("/accounts/{id}/balance")
     ResponseEntity<String> checkBalance(@PathVariable Long id){
         if (!accountRepository.existsById(id))
@@ -121,6 +128,7 @@ public class AccountController {
         return new ResponseEntity<>("Account current balance: " + balance, HttpStatus.OK);
     }
 
+    @Operation(summary = "List transactions by account id")
     @GetMapping("/accounts/{id}/transactions")
     public CollectionModel<EntityModel<Transaction>> financialStatement(@PathVariable Long id, @PageableDefault(page = 0, size = 10) Pageable pageRequest){
         List<EntityModel<Transaction>> transactions = transactionRepository.findByAccountId(id, pageRequest).stream()
@@ -131,6 +139,7 @@ public class AccountController {
                 linkTo(methodOn(AccountController.class).financialStatement(id, pageRequest)).withSelfRel());
     }
 
+    @Operation(summary = "Make a deposit (Add credit to account)")
     @PostMapping("/accounts/{id}/deposit")
     ResponseEntity<String> makeDeposit(@RequestBody Deposit deposit, @PathVariable Long id){
         this.makeTransaction(
@@ -143,6 +152,7 @@ public class AccountController {
         return new ResponseEntity<>("Deposit successful", HttpStatus.OK);
     }
 
+    @Operation(summary = "Make a payment")
     @PostMapping("/accounts/{id}/payment")
     ResponseEntity<String> makePayment(@RequestBody Payment payment, @PathVariable Long id){
         this.makeTransaction(
@@ -155,6 +165,7 @@ public class AccountController {
         return new ResponseEntity<>("Payment successful", HttpStatus.OK);
     }
 
+    @Operation(summary = "Transfer credit between accounts")
     @PostMapping("/accounts/transfer")
     ResponseEntity<String> makeTransfer(@RequestBody Transfer transfer){
         this.makeTransaction(
