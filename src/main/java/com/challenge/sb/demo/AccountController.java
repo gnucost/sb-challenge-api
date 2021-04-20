@@ -2,12 +2,13 @@ package com.challenge.sb.demo;
 
 import com.challenge.sb.demo.entities.*;
 import com.challenge.sb.demo.entities.helpers.Deposit;
-import com.challenge.sb.demo.entities.Payment;
 import com.challenge.sb.demo.entities.helpers.Transfer;
 import com.challenge.sb.demo.repositories.AccountRepository;
 import com.challenge.sb.demo.repositories.PaymentRepository;
 import com.challenge.sb.demo.repositories.TransactionRepository;
 import io.swagger.v3.oas.annotations.Operation;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
@@ -19,7 +20,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.awt.print.Pageable;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -134,13 +134,13 @@ public class AccountController {
 
     @Operation(summary = "List transactions by account id")
     @GetMapping("/accounts/{id}/transactions")
-    public CollectionModel<EntityModel<Transaction>> financialStatement(@PathVariable Long id){
-        List<EntityModel<Transaction>> transactions = transactionRepository.findByAccountId(id).stream()
+    public CollectionModel<EntityModel<Transaction>> financialStatement(@PathVariable Long id, @PageableDefault Pageable pageable){
+        List<EntityModel<Transaction>> transactions = transactionRepository.findByAccountId(id, pageable).stream()
                 .map(transactionAssembler::toModel)
                 .collect(Collectors.toList());
 
         return CollectionModel.of(transactions,
-                linkTo(methodOn(AccountController.class).financialStatement(id)).withSelfRel());
+                linkTo(methodOn(AccountController.class).financialStatement(id, pageable)).withSelfRel());
     }
 
     @Operation(summary = "Make a deposit (Add credit to account)")
