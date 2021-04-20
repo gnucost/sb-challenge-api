@@ -65,7 +65,13 @@ public class AccountController {
     @Operation(summary = "Add new account")
     @PostMapping("/accounts")
     ResponseEntity<?> newAccount(@RequestBody Account account){
-        Account newAccount = new Account(account.getName(), account.getDescription());
+        if (account.getName().isEmpty() || account.getName().isBlank())
+            return new ResponseEntity<>("Name required", HttpStatus.BAD_REQUEST);
+
+        if (account.getDescription().isEmpty() || account.getDescription().isBlank())
+            return new ResponseEntity<>("Description required", HttpStatus.BAD_REQUEST);
+
+        Account newAccount = new Account(account.getName().trim(), account.getDescription().trim());
         EntityModel<Account> entityModel = accountAssembler.toModel(accountRepository.save(newAccount));
         return ResponseEntity
                 .created(entityModel.getRequiredLink(IanaLinkRelations.SELF).toUri())
@@ -75,18 +81,22 @@ public class AccountController {
     @Operation(summary = "Update an existing account")
     @PutMapping("/accounts/{id}")
     ResponseEntity<?> updateAccount(@PathVariable Long id, @RequestBody Account newAccount){
+        if (newAccount.getName().isEmpty() || newAccount.getName().isBlank())
+            return new ResponseEntity<>("Name required", HttpStatus.BAD_REQUEST);
+
+        if (newAccount.getDescription().isEmpty() || newAccount.getDescription().isBlank())
+            return new ResponseEntity<>("Description required", HttpStatus.BAD_REQUEST);
+
         Account updatedAccount = accountRepository.findById(id)
                 .map(account -> {
-                    account.setName(newAccount.getName());
-                    account.setDescription(newAccount.getDescription());
+                    account.setName(newAccount.getName().trim());
+                    account.setDescription(newAccount.getDescription().trim());
                     account.setStatus(newAccount.getStatus());
                     return accountRepository.save(account);
                 }).orElseThrow(() -> new AccountNotFoundException(id));
 
         EntityModel<Account> entityModel = accountAssembler.toModel(updatedAccount);
-        return ResponseEntity
-                .created(entityModel.getRequiredLink(IanaLinkRelations.SELF).toUri())
-                .body(entityModel);
+        return ResponseEntity.ok().body(entityModel);
     }
 
     @Operation(summary = "List all accounts")
@@ -144,12 +154,16 @@ public class AccountController {
                 .collect(Collectors.toList());
 
         return CollectionModel.of(transactions,
+                linkTo(methodOn(AccountController.class).findAccount(id)).withRel("account"),
                 linkTo(methodOn(AccountController.class).financialStatement(id, pageable)).withSelfRel());
     }
 
     @Operation(summary = "Make a deposit (Add credit to account)")
     @PostMapping("/accounts/{id}/deposit")
     ResponseEntity<String> makeDeposit(@RequestBody Deposit deposit, @PathVariable Long id){
+        if (deposit == null)
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+
         if (deposit.getAmount().compareTo(BigDecimal.ZERO) <= 0)
             return new ResponseEntity<>("amount must be positive", HttpStatus.BAD_REQUEST);
 
@@ -166,6 +180,12 @@ public class AccountController {
     @Operation(summary = "Make a payment")
     @PostMapping("/accounts/{id}/payment")
     ResponseEntity<String> makePayment(@RequestBody Payment payment, @PathVariable Long id){
+        if (payment == null)
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+
+        if (payment.getBarcode().isEmpty() || payment.getBarcode().isBlank())
+            return new ResponseEntity<>("missing barcode", HttpStatus.BAD_REQUEST);
+
         if (payment.getAmount().compareTo(BigDecimal.ZERO) <= 0)
             return new ResponseEntity<>("amount must be positive", HttpStatus.BAD_REQUEST);
 
@@ -187,6 +207,9 @@ public class AccountController {
     @Operation(summary = "Transfer credit between accounts")
     @PostMapping("/accounts/transfer")
     ResponseEntity<String> makeTransfer(@RequestBody Transfer transfer){
+        if (transfer == null)
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+
         if (transfer.getAmount().compareTo(BigDecimal.ZERO) <= 0)
             return new ResponseEntity<>("amount must be positive", HttpStatus.BAD_REQUEST);
 

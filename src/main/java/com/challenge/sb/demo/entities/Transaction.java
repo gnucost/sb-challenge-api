@@ -1,5 +1,7 @@
 package com.challenge.sb.demo.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -17,6 +19,7 @@ public class Transaction {
     @Enumerated(EnumType.STRING)
     private Type type;
 
+    @JsonIgnore
     @ManyToOne
     private Account account;
 

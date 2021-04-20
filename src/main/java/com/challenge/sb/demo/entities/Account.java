@@ -1,5 +1,7 @@
 package com.challenge.sb.demo.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 import java.math.BigDecimal;
 import java.util.List;
@@ -19,6 +21,7 @@ public class Account {
 
     private BigDecimal balance;
 
+    @JsonIgnore
     @OneToMany( targetEntity = Transaction.class )
     private List transactionList;
 
