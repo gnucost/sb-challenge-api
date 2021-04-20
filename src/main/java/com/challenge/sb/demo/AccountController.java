@@ -23,6 +23,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
+import java.time.Instant;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -148,6 +150,9 @@ public class AccountController {
     @Operation(summary = "Make a deposit (Add credit to account)")
     @PostMapping("/accounts/{id}/deposit")
     ResponseEntity<String> makeDeposit(@RequestBody Deposit deposit, @PathVariable Long id){
+        if (deposit.getAmount().compareTo(BigDecimal.ZERO) <= 0)
+            return new ResponseEntity<>("amount must be positive", HttpStatus.BAD_REQUEST);
+
         this.makeTransaction(
                 id,
                 deposit.getAmount(),
@@ -161,6 +166,12 @@ public class AccountController {
     @Operation(summary = "Make a payment")
     @PostMapping("/accounts/{id}/payment")
     ResponseEntity<String> makePayment(@RequestBody Payment payment, @PathVariable Long id){
+        if (payment.getAmount().compareTo(BigDecimal.ZERO) <= 0)
+            return new ResponseEntity<>("amount must be positive", HttpStatus.BAD_REQUEST);
+
+        if (payment.getExpirationDate().compareTo(Instant.now()) < 0)
+            return new ResponseEntity<>("Bill is past due", HttpStatus.BAD_REQUEST);
+
         Payment newPayment = this.paymentRepository.save(payment);
 
         this.makeTransaction(
@@ -176,6 +187,9 @@ public class AccountController {
     @Operation(summary = "Transfer credit between accounts")
     @PostMapping("/accounts/transfer")
     ResponseEntity<String> makeTransfer(@RequestBody Transfer transfer){
+        if (transfer.getAmount().compareTo(BigDecimal.ZERO) <= 0)
+            return new ResponseEntity<>("amount must be positive", HttpStatus.BAD_REQUEST);
+
         this.makeTransaction(
                 transfer.getAccountOriginId(),
                 transfer.getAmount().negate(),
