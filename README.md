@@ -1,8 +1,14 @@
 # Social Bank Challenge API
 
+## Como rodar essa aplicação localmente
+
+A partir da pasta raiz da aplicação, usar o seguinto comando via CLI:
+
+`./gradlew bootRun`
+
 ## Como subir uma imagem docker dessa aplicação
 
-A partir da pasta da aplicação, você pode (escolha uma opção):
+A partir da pasta raiz da aplicação, você pode (escolha uma opção):
 
 1. Usar o comando: <br>`./gradlew build` para gerar um .jar e depois:
 <br>`sudo docker build --build-arg JAR_FILE=build/libs/\*.jar -t springio/sb-challenge-api .`<br> para gerar uma imagem docker;
