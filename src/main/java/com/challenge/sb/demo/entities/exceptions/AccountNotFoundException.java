@@ -1,4 +1,4 @@
-package com.challenge.sb.demo.entities;
+package com.challenge.sb.demo.entities.exceptions;
 
 public class AccountNotFoundException extends RuntimeException {
     public AccountNotFoundException(Long id) {

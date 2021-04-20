@@ -1,13 +1,15 @@
 package com.challenge.sb.demo;
 
 import com.challenge.sb.demo.entities.*;
-import com.challenge.sb.demo.entities.helpers.Deposit;
-import com.challenge.sb.demo.entities.helpers.Transfer;
+import com.challenge.sb.demo.entities.assemblers.AccountAssembler;
+import com.challenge.sb.demo.entities.assemblers.TransactionAssembler;
+import com.challenge.sb.demo.entities.exceptions.AccountNotFoundException;
+import com.challenge.sb.demo.helpers.Deposit;
+import com.challenge.sb.demo.helpers.Transfer;
 import com.challenge.sb.demo.repositories.AccountRepository;
 import com.challenge.sb.demo.repositories.PaymentRepository;
 import com.challenge.sb.demo.repositories.TransactionRepository;
 import io.swagger.v3.oas.annotations.Operation;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.hateoas.CollectionModel;

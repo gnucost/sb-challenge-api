@@ -1,6 +1,7 @@
-package com.challenge.sb.demo.entities;
+package com.challenge.sb.demo.entities.assemblers;
 
 import com.challenge.sb.demo.AccountController;
+import com.challenge.sb.demo.entities.Account;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.server.RepresentationModelAssembler;
 import org.springframework.stereotype.Component;

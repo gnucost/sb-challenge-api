@@ -1,4 +1,4 @@
-package com.challenge.sb.demo.entities;
+package com.challenge.sb.demo.entities.exceptions;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ControllerAdvice;
