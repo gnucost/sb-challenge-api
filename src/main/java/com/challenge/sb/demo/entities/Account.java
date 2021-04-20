@@ -1,6 +1,7 @@
 package com.challenge.sb.demo.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
@@ -10,6 +11,7 @@ import java.util.List;
 public class Account {
     public enum Status { ACTIVE, CANCELED }
 
+    @Schema(hidden = true)
     private @Id @GeneratedValue Long id;
 
     private String name;
@@ -19,6 +21,7 @@ public class Account {
     @Enumerated(EnumType.STRING)
     private Status status;
 
+    @Schema(hidden = true)
     private BigDecimal balance;
 
     @JsonIgnore

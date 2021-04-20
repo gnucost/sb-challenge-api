@@ -1,5 +1,6 @@
 package com.challenge.sb.demo.entities;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import org.springframework.context.annotation.Primary;
 
 import javax.persistence.Entity;
@@ -10,6 +11,7 @@ import java.time.Instant;
 
 @Entity
 public class Payment {
+    @Schema(hidden = true)
     @Id @GeneratedValue private Long id;
     private String barcode;
     private Instant expirationDate;
