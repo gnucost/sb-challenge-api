@@ -1,6 +1,8 @@
 package com.challenge.sb.demo;
 
-import com.challenge.sb.demo.entities.*;
+import com.challenge.sb.demo.entities.Account;
+import com.challenge.sb.demo.entities.Payment;
+import com.challenge.sb.demo.entities.Transaction;
 import com.challenge.sb.demo.entities.assemblers.AccountAssembler;
 import com.challenge.sb.demo.entities.assemblers.TransactionAssembler;
 import com.challenge.sb.demo.entities.exceptions.AccountNotFoundException;
@@ -10,8 +12,10 @@ import com.challenge.sb.demo.repositories.AccountRepository;
 import com.challenge.sb.demo.repositories.PaymentRepository;
 import com.challenge.sb.demo.repositories.TransactionRepository;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import org.springdoc.core.converters.models.PageableAsQueryParam;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.IanaLinkRelations;
@@ -24,7 +28,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -147,8 +150,10 @@ public class AccountController {
     }
 
     @Operation(summary = "List transactions by account id")
+    @PageableAsQueryParam
     @GetMapping("/accounts/{id}/transactions")
-    public CollectionModel<EntityModel<Transaction>> financialStatement(@PathVariable Long id, @PageableDefault Pageable pageable){
+    public CollectionModel<EntityModel<Transaction>> financialStatement(@PathVariable Long id,
+                                                                        @Parameter(hidden = true) Pageable pageable){
         List<EntityModel<Transaction>> transactions = transactionRepository.findByAccountId(id, pageable).stream()
                 .map(transactionAssembler::toModel)
                 .collect(Collectors.toList());
